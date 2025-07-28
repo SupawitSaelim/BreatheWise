@@ -5,7 +5,7 @@ from ..core.athlete import Athlete
 from ..core.training_zones import TrainingZones
 from ..core.sessions import SessionGenerator
 from ..generators.schedule import ScheduleGenerator
-from ..generators.pdf_generator import PdfGenerator
+from ..generators.pdf_generator import PDFGenerator
 from ..data.storage import ProgressStorage
 from ..utils.time_utils import parse_time_input, format_time
 
