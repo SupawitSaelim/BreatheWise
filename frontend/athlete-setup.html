@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athlete Setup - BreatheWise</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #1e3a8a;
+            --light-blue: #3b82f6;
+            --mint-green: #10b981;
+            --light-mint: #34d399;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-light: #f1f5f9;
+            --text-gray: #94a3b8;
+            --error-red: #ef4444;
+            --success-green: #22c55e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--primary-blue) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .breath-wave {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.1), transparent);
+            animation: breatheWave 6s ease-in-out infinite;
+        }
+
+        .breath-wave:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .breath-wave:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .breath-wave:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            top: 80%;
+            left: 50%;
+            animation-delay: 4s;
+        }
+
+        @keyframes breatheWave {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg);
+                opacity: 0.1;
+            }
+            50% { 
+                transform: scale(1.3) rotate(180deg);
+                opacity: 0.3;
+            }
+        }
+
+        /* Main Container */
+        .setup-container {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 600px;
+            padding: 3rem;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .setup-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .setup-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--mint-green), var(--light-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .setup-header p {
+            color: var(--text-gray);
+            font-size: 1.1rem;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 3rem;
+            gap: 1rem;
+        }
+
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 2px solid var(--text-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-gray);
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            background: var(--mint-green);
+            border-color: var(--mint-green);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .step.completed {
+            background: var(--success-green);
+            border-color: var(--success-green);
+            color: white;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.8rem;
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--mint-green);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-input.error {
+            border-color: var(--error-red);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        /* Time Input Group */
+        .time-input-group {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .time-field {
+            flex: 1;
+        }
+
+        .time-field label {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        .time-separator {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--mint-green);
+            margin-bottom: 1rem;
+        }
+
+        /* Radio Group */
+        .radio-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .radio-item {
+            position: relative;
+        }
+
+        .radio-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .radio-label {
+            display: block;
+            padding: 1.5rem;
+            background: rgba(15, 23, 42, 0.4);
+            border: 2px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .radio-label:hover {
+            border-color: var(--mint-green);
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        .radio-input:checked + .radio-label {
+            border-color: var(--mint-green);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .radio-label::before {
+            content: '';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-gray);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .radio-input:checked + .radio-label::before {
+            border-color: var(--mint-green);
+            background: var(--mint-green);
+            box-shadow: inset 0 0 0 4px var(--card-bg);
+        }
+
+        .radio-title {
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .radio-description {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        /* Buttons */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--mint-green), var(--light-mint));
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-light);
+            border: 2px solid var(--light-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light-blue);
+            transform: translateY(-2px);
+        }
+
+        /* Error Message */
+        .error-message {
+            color: var(--error-red);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Success Summary */
+        .setup-summary {
+            display: none;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--success-green);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .setup-summary h3 {
+            color: var(--success-green);
+            margin-bottom: 1rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .setup-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+
+            .setup-header h1 {
+                font-size: 2rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .time-input-group {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .time-separator {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="breath-wave"></div>
+        <div class="breath-wave"></div>
+        <div class="breath-wave"></div>
+    </div>
+
+    <div class="setup-container">
+        <!-- Header -->
+        <div class="setup-header">
+            <h1><i class="fas fa-user-cog"></i> Athlete Setup</h1>
+            <p>Let's personalize your breath hold training experience</p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step active" id="step1">1</div>
+            <div class="step" id="step2">2</div>
+            <div class="step" id="step3">3</div>
+            <div class="step" id="step4">4</div>
+        </div>
+
+        <!-- Setup Summary -->
+        <div class="setup-summary" id="setupSummary">
+            <h3><i class="fas fa-check-circle"></i> Training Plan Summary</h3>
+            <div id="summaryContent"></div>
+        </div>
+
+        <!-- Form -->
+        <form id="athleteForm">
+            <!-- Step 1: Current Max -->
+            <div class="form-step" id="formStep1">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-stopwatch"></i> Current Maximum Breath Hold
+                    </label>
+                    <div class="time-input-group">
+                        <div class="time-field">
+                            <label>Minutes</label>
+                            <input type="number" class="form-input" id="maxMinutes" min="0" max="30" placeholder="2">
+                        </div>
+                        <div class="time-separator">:</div>
+                        <div class="time-field">
+                            <label>Seconds</label>
+                            <input type="number" class="form-input" id="maxSeconds" min="0" max="59" placeholder="30">
+                        </div>
+                    </div>
+                    <div class="error-message" id="maxTimeError" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Please enter a valid time
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="hasPrevious"> I have a previous max to compare
+                    </label>
+                    
+                    <div class="time-input-group" id="previousTimeGroup" style="display: none; margin-top: 1rem;">
+                        <div class="time-field">
+                            <label>Previous Minutes</label>
+                            <input type="number" class="form-input" id="prevMinutes" min="0" max="30">
+                        </div>
+                        <div class="time-separator">:</div>
+                        <div class="time-field">
+                            <label>Previous Seconds</label>
+                            <input type="number" class="form-input" id="prevSeconds" min="0" max="59">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Experience Level -->
+            <div class="form-step" id="formStep2" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-graduation-cap"></i> Experience Level
+                    </label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" class="radio-input" id="beginner" name="experience" value="beginner">
+                            <label class="radio-label" for="beginner">
+                                <div class="radio-title">Beginner</div>
+                                <div class="radio-description">Less than 6 months of breath hold training</div>
+                            </label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" class="radio-input" id="intermediate" name="experience" value="intermediate">
+                            <label class="radio-label" for="intermediate">
+                                <div class="radio-title">Intermediate</div>
+                                <div class="radio-description">6 months to 2 years of training experience</div>
+                            </label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" class="radio-input" id="advanced" name="experience" value="advanced">
+                            <label class="radio-label" for="advanced">
+                                <div class="radio-title">Advanced</div>
+                                <div class="radio-description">2+ years of consistent training</div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="error-message" id="experienceError" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Please select your experience level
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Training Goals -->
+            <div class="form-step" id="formStep3" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-target"></i> Primary Training Goal
+                    </label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" class="radio-input" id="strength" name="goals" value="strength">
+                            <label class="radio-label" for="strength">
+                                <div class="radio-title">Strength</div>
+                                <div class="radio-description">Focus on longer single holds and maximum performance</div>
+                            </label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" class="radio-input" id="endurance" name="goals" value="endurance">
+                            <label class="radio-label" for="endurance">
+                                <div class="radio-title">Endurance</div>
+                                <div class="radio-description">Multiple holds, volume training, and recovery</div>
+                            </label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" class="radio-input" id="balanced" name="goals" value="balanced">
+                            <label class="radio-label" for="balanced">
+                                <div class="radio-title">Balanced</div>
+                                <div class="radio-description">Mix of strength and endurance training</div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="error-message" id="goalsError" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Please select your training goal
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Week Selection -->
+            <div class="form-step" id="formStep4" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-calendar-week"></i> Training Week
+                    </label>
+                    <select class="form-input" id="currentWeek">
+                        <option value="">Select training week...</option>
+                        <option value="1">Week 1 - Foundation Building</option>
+                        <option value="2">Week 2 - Progressive Loading</option>
+                        <option value="3">Week 3 - Intensity Phase</option>
+                        <option value="4">Week 4 - Recovery Week</option>
+                        <option value="5">Week 5 - Peak Training</option>
+                        <option value="6">Week 6 - Performance Testing</option>
+                    </select>
+                    <div class="error-message" id="weekError" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Please select your training week
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="prevBtn" onclick="previousStep()" style="display: none;">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+                <button type="button" class="btn btn-primary" id="generateBtn" onclick="generatePlan()" style="display: none;">
+                    <i class="fas fa-magic"></i> Generate Plan
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        let athleteData = {};
+
+        // Step navigation
+        function nextStep() {
+            if (validateCurrentStep()) {
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    showStep(currentStep);
+                    updateProgressSteps();
+                }
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+                updateProgressSteps();
+            }
+        }
+
+        function showStep(step) {
+            // Hide all steps
+            for (let i = 1; i <= totalSteps; i++) {
+                document.getElementById(`formStep${i}`).style.display = 'none';
+            }
+            
+            // Show current step
+            document.getElementById(`formStep${step}`).style.display = 'block';
+            
+            // Update buttons
+            document.getElementById('prevBtn').style.display = step === 1 ? 'none' : 'block';
+            document.getElementById('nextBtn').style.display = step === totalSteps ? 'none' : 'block';
+            document.getElementById('generateBtn').style.display = step === totalSteps ? 'block' : 'none';
+        }
+
+        function updateProgressSteps() {
+            for (let i = 1; i <= totalSteps; i++) {
+                const stepEl = document.getElementById(`step${i}`);
+                stepEl.classList.remove('active', 'completed');
+                
+                if (i < currentStep) {
+                    stepEl.classList.add('completed');
+                } else if (i === currentStep) {
+                    stepEl.classList.add('active');
+                }
+            }
+        }
+
+        // Validation
+        function validateCurrentStep() {
+            let isValid = true;
+            
+            switch (currentStep) {
+                case 1:
+                    isValid = validateTimeInput();
+                    break;
+                case 2:
+                    isValid = validateExperience();
+                    break;
+                case 3:
+                    isValid = validateGoals();
+                    break;
+                case 4:
+                    isValid = validateWeek();
+                    break;
+            }
+            
+            return isValid;
+        }
+
+        function validateTimeInput() {
+            const minutes = parseInt(document.getElementById('maxMinutes').value) || 0;
+            const seconds = parseInt(document.getElementById('maxSeconds').value) || 0;
+            const errorEl = document.getElementById('maxTimeError');
+            
+            if (minutes === 0 && seconds === 0) {
+                showError('maxTimeError', 'Please enter your current max hold time');
+                return false;
+            }
+            
+            athleteData.currentMax = (minutes * 60) + seconds;
+            
+            // Handle previous max if checked
+            const hasPrevious = document.getElementById('hasPrevious').checked;
+            if (hasPrevious) {
+                const prevMin = parseInt(document.getElementById('prevMinutes').value) || 0;
+                const prevSec = parseInt(document.getElementById('prevSeconds').value) || 0;
+                athleteData.previousMax = (prevMin * 60) + prevSec;
+            }
+            
+            hideError('maxTimeError');
+            return true;
+        }
+
+        function validateExperience() {
+            const experience = document.querySelector('input[name="experience"]:checked');
+            if (!experience) {
+                showError('experienceError', 'Please select your experience level');
+                return false;
+            }
+            
+            athleteData.experienceLevel = experience.value;
+            hideError('experienceError');
+            return true;
+        }
+
+        function validateGoals() {
+            const goals = document.querySelector('input[name="goals"]:checked');
+            if (!goals) {
+                showError('goalsError', 'Please select your training goal');
+                return false;
+            }
+            
+            athleteData.goals = goals.value;
+            hideError('goalsError');
+            return true;
+        }
+
+        function validateWeek() {
+            const week = document.getElementById('currentWeek').value;
+            if (!week) {
+                showError('weekError', 'Please select your training week');
+                return false;
+            }
+            
+            athleteData.currentWeek = parseInt(week);
+            hideError('weekError');
+            return true;
+        }
+
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            errorEl.textContent = message;
+            errorEl.style.display = 'flex';
+        }
+
+        function hideError(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+
+        // Generate plan
+        function generatePlan() {
+            // Show summary
+            showSummary();
+            
+            // Simulate API call
+            setTimeout(() => {
+                // This will connect to the Python backend later
+                alert(`🎉 Training Plan Generated!\n\nNext: Training Dashboard with your personalized plan`);
+                
+                // Log data for development
+                console.log('Athlete Data:', athleteData);
+            }, 1500);
+        }
+
+        function showSummary() {
+            const summaryEl = document.getElementById('setupSummary');
+            const contentEl = document.getElementById('summaryContent');
+            
+            const formatTime = (seconds) => {
+                const min = Math.floor(seconds / 60);
+                const sec = seconds % 60;
+                return `${min}:${sec.toString().padStart(2, '0')}`;
+            };
+            
+            let summaryHTML = `
+                <div class="summary-item">
+                    <span>Current Max:</span>
+                    <span>${formatTime(athleteData.currentMax)}</span>
+                </div>
+                <div class="summary-item">
+                    <span>Experience Level:</span>
+                    <span>${athleteData.experienceLevel.charAt(0).toUpperCase() + athleteData.experienceLevel.slice(1)}</span>
+                </div>
+                <div class="summary-item">
+                    <span>Training Goal:</span>
+                    <span>${athleteData.goals.charAt(0).toUpperCase() + athleteData.goals.slice(1)}</span>
+                </div>
+                <div class="summary-item">
+                    <span>Training Week:</span>
+                    <span>Week ${athleteData.currentWeek}/6</span>
+                </div>
+            `;
+            
+            if (athleteData.previousMax) {
+                const improvement = athleteData.currentMax - athleteData.previousMax;
+                summaryHTML += `
+                    <div class="summary-item">
+                        <span>Progress:</span>
+                        <span style="color: var(--success-green);">+${improvement}s</span>
+                    </div>
+                `;
+            }
+            
+            contentEl.innerHTML = summaryHTML;
+            summaryEl.style.display = 'block';
+        }
+
+        // Event listeners
+        document.getElementById('hasPrevious').addEventListener('change', function() {
+            const previousGroup = document.getElementById('previousTimeGroup');
+            previousGroup.style.display = this.checked ? 'flex' : 'none';
+        });
+
+        // Initialize
+        showStep(1);
+        updateProgressSteps();
+    </script>
+</body>
+</html>
