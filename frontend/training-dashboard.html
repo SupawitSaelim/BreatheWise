@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Dashboard - BreatheWise</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #1e3a8a;
+            --light-blue: #3b82f6;
+            --mint-green: #10b981;
+            --light-mint: #34d399;
+            --dark-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-light: #f1f5f9;
+            --text-gray: #94a3b8;
+            --error-red: #ef4444;
+            --success-green: #22c55e;
+            --warning-yellow: #f59e0b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--primary-blue) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--mint-green), var(--light-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .athlete-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--mint-green);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        /* Main Container */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        /* Session Panel */
+        .session-panel {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .session-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .session-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .session-day {
+            background: linear-gradient(135deg, var(--mint-green), var(--light-mint));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        /* Timer Interface */
+        .timer-container {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 20px;
+            border: 2px solid var(--mint-green);
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--mint-green);
+            margin-bottom: 1rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-status {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .timer-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .timer-btn.start {
+            background: linear-gradient(135deg, var(--success-green), var(--light-mint));
+            color: white;
+        }
+
+        .timer-btn.stop {
+            background: linear-gradient(135deg, var(--error-red), #f87171);
+            color: white;
+        }
+
+        .timer-btn.reset {
+            background: var(--warning-yellow);
+            color: var(--dark-bg);
+        }
+
+        .timer-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Rounds Table */
+        .rounds-section {
+            margin-top: 2rem;
+        }
+
+        .rounds-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .rounds-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .rounds-table th {
+            background: var(--mint-green);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .rounds-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .rounds-table tr:nth-child(even) {
+            background: rgba(15, 23, 42, 0.2);
+        }
+
+        .round-current {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border-left: 4px solid var(--mint-green);
+        }
+
+        .round-completed {
+            background: rgba(34, 197, 94, 0.1) !important;
+            color: var(--text-gray);
+        }
+
+        .actual-time-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 6px;
+            color: var(--text-light);
+            padding: 0.5rem;
+            width: 80px;
+            text-align: center;
+        }
+
+        /* Side Panel */
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        .panel-card {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--mint-green);
+        }
+
+        /* Progress Card */
+        .progress-ring {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1rem;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-bg {
+            fill: none;
+            stroke: rgba(59, 130, 246, 0.2);
+            stroke-width: 8;
+        }
+
+        .progress-ring-fill {
+            fill: none;
+            stroke: var(--mint-green);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .progress-percentage {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--mint-green);
+        }
+
+        .progress-label {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+        }
+
+        /* Weekly Schedule */
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .schedule-item:hover {
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        .schedule-item.active {
+            background: rgba(16, 185, 129, 0.2);
+            border-left: 4px solid var(--mint-green);
+        }
+
+        .schedule-day {
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .schedule-type {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        .schedule-status {
+            padding: 0.2rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(249, 115, 22, 0.2);
+            color: var(--warning-yellow);
+        }
+
+        .status-completed {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success-green);
+        }
+
+        .status-current {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--mint-green);
+        }
+
+        /* Notes Section */
+        .notes-input {
+            width: 100%;
+            min-height: 100px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 8px;
+            color: var(--text-light);
+            padding: 1rem;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .save-notes-btn {
+            background: var(--mint-green);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .save-notes-btn:hover {
+            background: var(--light-mint);
+        }
+
+        /* Action Buttons */
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--mint-green), var(--light-mint));
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--light-blue);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--light-blue);
+            color: var(--light-blue);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Breathing Animation */
+        .breathing-indicator {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--mint-green), var(--light-mint));
+            margin: 0 auto 1rem;
+            animation: breathe 4s ease-in-out infinite;
+            display: none;
+        }
+
+        .breathing-indicator.active {
+            display: block;
+        }
+
+        @keyframes breathe {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            50% { 
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .side-panel {
+                grid-row: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+
+            .athlete-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .timer-display {
+                font-size: 3rem;
+            }
+
+            .timer-controls {
+                flex-direction: column;
+            }
+
+            .dashboard-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1><i class="fas fa-tachometer-alt"></i> Training Dashboard</h1>
+        <div class="athlete-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="currentMax">2:30</div>
+                <div class="stat-label">Current Max</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="weekNumber">Week 1/6</div>
+                <div class="stat-label">Training Week</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="experienceLevel">Intermediate</div>
+                <div class="stat-label">Experience</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="trainingGoal">Balanced</div>
+                <div class="stat-label">Goal</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="dashboard-container">
+        <!-- Session Panel -->
+        <div class="session-panel">
+            <div class="session-header">
+                <h2 class="session-title">CO2 Tolerance Training</h2>
+                <div class="session-day">Monday</div>
+            </div>
+
+            <!-- Timer Interface -->
+            <div class="timer-container">
+                <div class="breathing-indicator" id="breathingIndicator"></div>
+                <div class="timer-display" id="timerDisplay">0:00</div>
+                <div class="timer-status" id="timerStatus">Ready to start</div>
+                <div class="timer-controls">
+                    <button class="timer-btn start" id="startBtn" onclick="startTimer()">
+                        <i class="fas fa-play"></i> Start
+                    </button>
+                    <button class="timer-btn stop" id="stopBtn" onclick="stopTimer()" style="display: none;">
+                        <i class="fas fa-pause"></i> Stop
+                    </button>
+                    <button class="timer-btn reset" id="resetBtn" onclick="resetTimer()">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Rounds Section -->
+            <div class="rounds-section">
+                <div class="rounds-header">
+                    <h3>Training Rounds</h3>
+                    <span>Base Hold: 1:00</span>
+                </div>
+                <table class="rounds-table">
+                    <thead>
+                        <tr>
+                            <th>Round</th>
+                            <th>Target Time</th>
+                            <th>Rest</th>
+                            <th>RPE</th>
+                            <th>Actual</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roundsTableBody">
+                        <!-- Rounds will be generated here --></>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Side Panel -->
+        <div class="side-panel">
+            <!-- Progress Card -->
+            <div class="panel-card">
+                <div class="card-header">
+                    <i class="fas fa-chart-pie"></i>
+                    Session Progress
+                </div>
+                <div class="progress-ring">
+                    <svg width="120" height="120">
+                        <circle class="progress-ring-bg" cx="60" cy="60" r="52"></circle>
+                        <circle class="progress-ring-fill" cx="60" cy="60" r="52" 
+                                stroke-dasharray="327" stroke-dashoffset="327" id="progressCircle"></circle>
+                    </svg>
+                    <div class="progress-text">
+                        <div class="progress-percentage" id="progressPercentage">0%</div>
+                        <div class="progress-label">Complete</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Schedule -->
+            <div class="panel-card">
+                <div class="card-header">
+                    <i class="fas fa-calendar-week"></i>
+                    This Week
+                </div>
+                <div id="weeklySchedule">
+                    <!-- Schedule items will be generated here -->
+                </div>
+            </div>
+
+            <!-- Session Notes -->
+            <div class="panel-card">
+                <div class="card-header">
+                    <i class="fas fa-sticky-note"></i>
+                    Session Notes
+                </div>
+                <textarea class="notes-input" id="sessionNotes" 
+                          placeholder="Record your feelings, observations, or improvements..."></textarea>
+                <button class="save-notes-btn" onclick="saveNotes()">
+                    <i class="fas fa-save"></i> Save Notes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="dashboard-actions">
+        <button class="action-btn btn-primary" onclick="completeSession()">
+            <i class="fas fa-check-circle"></i> Complete Session
+        </button>
+        <button class="action-btn btn-secondary" onclick="exportPDF()">
+            <i class="fas fa-file-pdf"></i> Export PDF
+        </button>
+        <button class="action-btn btn-outline" onclick="backToHome()">
+            <i class="fas fa-home"></i> Back to Home
+        </button>
+    </div>
+
+    <script>
+        // Global variables
+        let timerInterval;
+        let currentTime = 0;
+        let isRunning = false;
+        let currentRound = 0;
+        let sessionData = {
+            rounds: [],
+            notes: '',
+            completed: false
+        };
+
+        // Sample training data (from Python backend)
+        const sampleTrainingData = {
+            type: 'CO2 Table (Standard)',
+            description: 'Personalized CO2 tolerance - Base: 1:00',
+            rounds: [
+                {round: 1, hold_time: '1:00', rest_time: '2:00', target_rpe: '7-8'},
+                {round: 2, hold_time: '1:00', rest_time: '1:45', target_rpe: '7-8'},
+                {round: 3, hold_time: '1:00', rest_time: '1:30', target_rpe: '7-8'},
+                {round: 4, hold_time: '1:00', rest_time: '1:15', target_rpe: '7-8'},
+                {round: 5, hold_time: '1:00', rest_time: '1:00', target_rpe: '7-8'},
+                {round: 6, hold_time: '1:00', rest_time: '0:45', target_rpe: '7-8'},
+                {round: 7, hold_time: '1:00', rest_time: '0:30', target_rpe: '7-8'}
+            ]
+        };
+
+        const weeklySchedule = [
+            {day: 'Monday', type: 'CO2 Recovery', status: 'current'},
+            {day: 'Tuesday', type: 'Performance Test', status: 'pending'},
+            {day: 'Wednesday', type: 'Active Recovery', status: 'pending'},
+            {day: 'Thursday', type: 'O2 Table', status: 'pending'},
+            {day: 'Friday', type: 'CO2 Standard', status: 'pending'},
+            {day: 'Saturday', type: 'Technique Work', status: 'pending'},
+            {day: 'Sunday', type: 'Rest Day', status: 'pending'}
+        ];
+
+        // Initialize
+        function initializeDashboard() {
+            // Load athlete data from localStorage or URL params
+            loadAthleteData();
+            
+            // Generate rounds table
+            generateRoundsTable();
+            
+            // Generate weekly schedule
+            generateWeeklySchedule();
+            
+            // Set current round
+            setCurrentRound(1);
+        }
+
+        function loadAthleteData() {
+            // This would normally come from the athlete setup form
+            // For now, using sample data
+            document.getElementById('currentMax').textContent = '2:30';
+            document.getElementById('weekNumber').textContent = 'Week 1/6';
+            document.getElementById('experienceLevel').textContent = 'Intermediate';
+            document.getElementById('trainingGoal').textContent = 'Balanced';
+        }
+
+        function generateRoundsTable() {
+            const tbody = document.getElementById('roundsTableBody');
+            tbody.innerHTML = '';
+            
+            sampleTrainingData.rounds.forEach((round, index) => {
+                const row = document.createElement('tr');
+                row.id = `round-${round.round}`;
+                row.innerHTML = `
+                    <td>${round.round}</td>
+                    <td>${round.hold_time}</td>
+                    <td>${round.rest_time}</td>
+                    <td>${round.target_rpe}</td>
+                    <td><input type="text" class="actual-time-input" placeholder="0:00" 
+                               id="actual-${round.round}" onchange="updateActualTime(${round.round}, this.value)"></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function generateWeeklySchedule() {
+            const container = document.getElementById('weeklySchedule');
+            container.innerHTML = '';
+            
+            weeklySchedule.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `schedule-item ${item.status}`;
+                div.innerHTML = `
+                    <div>
+                        <div class="schedule-day">${item.day}</div>
+                        <div class="schedule-type">${item.type}</div>
+                    </div>
+                    <div class="schedule-status status-${item.status}">
+                        ${item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Timer functions
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                document.getElementById('startBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'inline-flex';
+                document.getElementById('timerStatus').textContent = 'Holding breath...';
+                document.getElementById('breathingIndicator').classList.add('active');
+                
+                timerInterval = setInterval(() => {
+                    currentTime++;
+                    updateTimerDisplay();
+                }, 1000);
+            }
+        }
+
+        function stopTimer() {
+            if (isRunning) {
+                isRunning = false;
+                clearInterval(timerInterval);
+                document.getElementById('startBtn').style.display = 'inline-flex';
+                document.getElementById('stopBtn').style.display = 'none';
+                document.getElementById('timerStatus').textContent = 'Timer stopped';
+                document.getElementById('breathingIndicator').classList.remove('active');
+                
+                // Auto-fill current round actual time
+                if (currentRound > 0) {
+                    const actualInput = document.getElementById(`actual-${currentRound}`);
+                    if (actualInput && !actualInput.value) {
+                        actualInput.value = formatTime(currentTime);
+                        updateActualTime(currentRound, formatTime(currentTime));
+                    }
+                }
+            }
+        }
+
+        function resetTimer() {
+            isRunning = false;
+            currentTime = 0;
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+            document.getElementById('startBtn').style.display = 'inline-flex';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('timerStatus').textContent = 'Ready to start';
+            document.getElementById('breathingIndicator').classList.remove('active');
+        }
+
+        function updateTimerDisplay() {
+            document.getElementById('timerDisplay').textContent = formatTime(currentTime);
+        }
+
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = seconds % 60;
+            return `${min}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        // Round management
+        function setCurrentRound(round) {
+            // Remove previous current round
+            document.querySelectorAll('.round-current').forEach(el => {
+                el.classList.remove('round-current');
+            });
+            
+            // Set new current round
+            const roundRow = document.getElementById(`round-${round}`);
+            if (roundRow) {
+                roundRow.classList.add('round-current');
+                currentRound = round;
+            }
+        }
+
+        function updateActualTime(round, time) {
+            // Store actual time data
+            sessionData.rounds[round - 1] = {
+                round: round,
+                actualTime: time,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Mark round as completed
+            const roundRow = document.getElementById(`round-${round}`);
+            if (roundRow) {
+                roundRow.classList.add('round-completed');
+            }
+            
+            // Move to next round
+            if (round < sampleTrainingData.rounds.length) {
+                setCurrentRound(round + 1);
+            }
+            
+            // Update progress
+            updateSessionProgress();
+        }
+
+        function updateSessionProgress() {
+            const completedRounds = sessionData.rounds.filter(r => r.actualTime).length;
+            const totalRounds = sampleTrainingData.rounds.length;
+            const percentage = Math.round((completedRounds / totalRounds) * 100);
+            
+            document.getElementById('progressPercentage').textContent = `${percentage}%`;
+            
+            // Update progress ring
+            const circle = document.getElementById('progressCircle');
+            const circumference = 2 * Math.PI * 52;
+            const offset = circumference - (percentage / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        // Action functions
+        function completeSession() {
+            sessionData.completed = true;
+            sessionData.completedAt = new Date().toISOString();
+            
+            alert(`🎉 Session Completed!\n\nGreat work! Your progress has been saved.\n\nNext: Continue with tomorrow's training or update your max hold time.`);
+            
+            console.log('Session Data:', sessionData);
+        }
+
+        function exportPDF() {
+            alert('📄 PDF Export\n\nThis will generate a detailed session report with your performance data.');
+        }
+
+        function saveNotes() {
+            const notes = document.getElementById('sessionNotes').value;
+            sessionData.notes = notes;
+            
+            // Show saved feedback
+            const btn = document.querySelector('.save-notes-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+            btn.style.background = 'var(--success-green)';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = 'var(--mint-green)';
+            }, 2000);
+        }
+
+        function backToHome() {
+            if (confirm('Are you sure you want to leave? Any unsaved progress will be lost.')) {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Initialize dashboard
+        initializeDashboard();
+
+        // Auto-save session data periodically
+        setInterval(() => {
+            // This would normally save to backend
+            if (sessionData.rounds.length > 0) {
+                localStorage.setItem('breathewise_session', JSON.stringify(sessionData));
+            }
+        }, 30000); // Save every 30 seconds
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (isRunning) {
+                    stopTimer();
+                } else {
+                    startTimer();
+                }
+            } else if (e.code === 'KeyR') {
+                resetTimer();
+            }
+        });
+
+        // Load previous session data if exists
+        const savedSession = localStorage.getItem('breathewise_session');
+        if (savedSession) {
+            try {
+                const loadedData = JSON.parse(savedSession);
+                if (loadedData && !loadedData.completed) {
+                    if (confirm('Continue previous session?')) {
+                        sessionData = loadedData;
+                        // Restore UI state
+                        restoreSessionState();
+                    }
+                }
+            } catch (e) {
+                console.log('Error loading session data:', e);
+            }
+        }
+
+        function restoreSessionState() {
+            // Restore actual times
+            sessionData.rounds.forEach(round => {
+                if (round.actualTime) {
+                    const input = document.getElementById(`actual-${round.round}`);
+                    if (input) {
+                        input.value = round.actualTime;
+                        const roundRow = document.getElementById(`round-${round.round}`);
+                        if (roundRow) {
+                            roundRow.classList.add('round-completed');
+                        }
+                    }
+                }
+            });
+            
+            // Restore notes
+            if (sessionData.notes) {
+                document.getElementById('sessionNotes').value = sessionData.notes;
+            }
+            
+            // Update progress
+            updateSessionProgress();
+            
+            // Set current round
+            const nextRound = sessionData.rounds.filter(r => r.actualTime).length + 1;
+            if (nextRound <= sampleTrainingData.rounds.length) {
+                setCurrentRound(nextRound);
+            }
+        }
+
+        // Window beforeunload warning
+        window.addEventListener('beforeunload', (e) => {
+            if (sessionData.rounds.length > 0 && !sessionData.completed) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+    </script>
+</body>
+</html>
